@@ -1,34 +1,28 @@
-FROM php:7.4-fpm-alpine
+FROM php:7.4.3-fpm-alpine
 
-RUN apk update && apk add --no-cache bash build-base shadow vim nano curl
+WORKDIR /srv/app/
 
-ENV PANTHER_NO_SANDBOX 1
-ENV PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'
-RUN apk add --no-cache chromium chromium-chromedriver
+RUN apk update
+RUN echo "extension=pdo_mysql" >> /usr/local/etc/php/php.ini-development
+RUN docker-php-ext-install -j$(nproc) pdo_mysql
 
-ARG GECKODRIVER_VERSION=0.28.0
-RUN apk add --no-cache firefox libzip-dev
-RUN docker-php-ext-install zip
-RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz; \
-    tar -zxf geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz -C /usr/bin; \
-    rm geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz
+# php-redis
+ENV PHPREDIS_VERSION 5.0.2
 
-RUN docker-php-ext-install pdo
-RUN docker-php-ext-install mysqli pdo_mysql
+RUN docker-php-source extract \
+    && curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz \
+    && tar xfz /tmp/redis.tar.gz \
+    && rm -r /tmp/redis.tar.gz \
+    && mv phpredis-$PHPREDIS_VERSION /usr/src/php/ext/redis \
+    && docker-php-ext-install redis \
+    && docker-php-source delete
 
-RUN apk --update --no-cache add autoconf g++ make
-RUN pecl install -f xdebug
-RUN docker-php-ext-enable xdebug
-RUN apk del --purge autoconf g++ make
+RUN apk add --no-cache \
+        unzip \
+        chromium \
+        chromium-chromedriver
 
-ADD ./xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-ADD ./error_reporting.ini /usr/local/etc/php/conf.d/error_reporting.ini
+ENV PANTHER_CHROME_DRIVER_BINARY /usr/lib/chromium/chromedriver
 
-ARG USER_ID
-ARG GROUP_ID
-
-RUN groupadd -f --gid $GROUP_ID user
-RUN useradd -u $USER_ID -ms /bin/bash -g user user
-USER user
-
-WORKDIR /var/www
+RUN docker-php-ext-install opcache
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
