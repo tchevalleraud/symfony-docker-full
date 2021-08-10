@@ -1,5 +1,33 @@
-controllers:
-    resource: ../../src/Controller/
+_default:
+    resource: ../../src/UI/_default
+    type: annotation
+
+frontoffice:
+    name_prefix: frontoffice.
+    prefix:
+        en: "/en/"
+        fr: "/fr/"
+    resource: ../../src/UI/FrontOffice
+    type: annotation
+
+backoffice:
+    name_prefix: backoffice.
+    prefix:
+        en: "/en/admin/"
+        fr: "/fr/admin/"
+    resource: ../../src/UI/BackOffice
+    type: annotation
+
+api_docs:
+    name_prefix: api.docs.
+    prefix: "/api/docs/"
+    resource: ../../src/UI/API/Docs
+    type: annotation
+
+api_v2:
+    name_prefix: api.v2.
+    prefix: "/api/v2/"
+    resource: ../../src/UI/API/V2
     type: annotation
 
 kernel:
