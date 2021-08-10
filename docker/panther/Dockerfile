@@ -8,7 +8,6 @@ RUN apk add --no-cache chromium chromium-chromedriver
 
 ARG GECKODRIVER_VERSION=0.28.0
 RUN apk add --no-cache firefox libzip-dev
-RUN docker-php-ext-install zip
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz; \
     tar -zxf geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz -C /usr/bin; \
     rm geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz
