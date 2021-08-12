@@ -83,11 +83,11 @@ doctrine-database-drop:
 doctrine-fixtures-load:
 	$(sy) doctrine:fixtures:load --no-interaction
 
-public/assets: yarn.lock
+public/assets:
 	$(node) yarn
 	$(node) yarn run build
 
-public/assets-dev: yarn.lock
+public/assets-dev:
 	$(node) yarn
 	$(node) yarn run dev
 
