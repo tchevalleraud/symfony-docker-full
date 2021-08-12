@@ -38,6 +38,17 @@
             return $client;
         }
 
+        public function getPantherClientAuthenticated($email, $password): Client {
+            $client     = $this->getPantherClient();
+            $crawler    = $client->request('GET', '/en/login.html');
+            $form       = $crawler->selectButton('Sign in')->form([
+                'email'     => $email,
+                'password'  => $password
+            ]);
+            $client->submit($form);
+            return $client;
+        }
+
         public function takeScreenshot(Client $client, $request = "/", $name = "root.png"){
             $this->takeScreenshotSize($client, $request, $name, "pc", 2560, 1440);
             $this->takeScreenshotSize($client, $request, $name, "pc", 1920, 1080);
