@@ -50,7 +50,11 @@
 
         public function getUser($credentials, UserProviderInterface $userProvider){
             $token = new CsrfToken('authenticate', $credentials['csrf_token']);
-            if(!$this->csrfTokenManager->isTokenValid($token)){
+            dump($token);
+            dump($this->csrfTokenManager->isTokenValid($token));
+            dd($credentials);
+            $token = new CsrfToken('authenticate', $credentials['csrf_token']);
+            if($this->csrfTokenManager->isTokenValid($token)){
                 throw new InvalidCsrfTokenException();
             }
 
