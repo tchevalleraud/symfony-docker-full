@@ -1,0 +1,125 @@
+name: Deploy on development server
+on:
+  pull_request:
+    branches:
+      - master
+      - develop
+jobs:
+  init:
+    runs-on: [development]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: ./tests/
+      - name: Update environment
+        run: |
+          cd ./tests/
+          rm .env
+          touch .env
+          echo "APP_ENV=test" >> .env
+          echo "APP_SECRET=${{ secrets.APP_SECRET }}" >> .env
+  build:
+    runs-on: [development]
+    needs: [init]
+    steps:
+      - name: Build docker image
+        run: |
+          cd ./dev/
+          make docker-build
+      - name: Build dependancies
+        run: |
+          cd ./dev/
+          make vendor/autoload.php
+          make public/assets-dev
+  deploy:
+    runs-on: [development]
+    needs: [build]
+    steps:
+      - name: Start docker environment
+        run: |
+          cd ./dev/
+          make server-start
+          sleep 15
+      - name: Database deployment
+        run: |
+          cd ./dev/
+          make doctrine-database-drop
+          make doctrine-database-create
+          make doctrine-fixtures-load
+      - name: Cache clear
+        run: |
+          cd ./dev/
+          make cache-clear
+  tests-globals:
+    runs-on: [development]
+    needs: [deploy]
+    steps:
+      - name: UnitTest
+        run: |
+          cd ./dev/
+          make test-unit-globals
+  tests-domain:
+    runs-on: [development]
+    needs: [deploy]
+    steps:
+      - name: UnitTest
+        run: |
+          cd ./dev/
+          make test-unit-domain
+  tests-frontoffice:
+    runs-on: [development]
+    needs: [deploy]
+    steps:
+      - name: UnitTest
+        run: |
+          cd ./dev/
+          make test-unit-frontoffice
+  codacy:
+    runs-on: [development]
+    needs: [tests-globals, tests-domain, tests-frontoffice]
+    steps:
+      - name: Remove previous report
+        run: |
+          cd ./dev/
+          rm -Rf coverage.xml
+      - name: UnitTest
+        run: |
+          cd ./dev/
+          make test-codecoverage
+      - name: Upload report
+        run: |
+          cd ./dev/
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
+  codecov:
+    runs-on: [development]
+    needs: [tests-globals, tests-domain, tests-frontoffice]
+    steps:
+      - name: Remove previous report
+        run: |
+          cd ./dev/
+          rm -Rf coverage.xml
+      - name: UnitTest
+        run: |
+          cd ./dev/
+          make test-codecoverage
+      - name: Upload report
+        run: |
+          cd ./dev/
+          CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }} bash <(curl -s https://codecov.io/bash)
+  screenshot:
+    runs-on: [development]
+    needs: [tests-globals, tests-domain, tests-frontoffice]
+    steps:
+      - name: Remove screenshot directory
+        run: |
+          cd ./dev/
+          rm -Rf ./screenshot/
+      - name: Screenshot
+        run: |
+          cd ./dev/
+          make test-screenshot
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Screenshot
+          path: ./dev/screenshot/

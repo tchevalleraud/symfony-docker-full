@@ -10,6 +10,8 @@ ifeq ($(APP_ENV), prod)
 	dc := USER_ID=$(user) GROUP_ID=$(group) docker-compose -f docker-compose.prod.yaml -p $(app_dir)_$(APP_ENV)
 else ifeq ($(APP_ENV), dev)
 	dc := USER_ID=$(user) GROUP_ID=$(group) docker-compose -f docker-compose.dev.yaml -p $(app_dir)_$(APP_ENV)
+else ifeq ($(APP_ENV), test)
+	dc := USER_ID=$(user) GROUP_ID=$(group) docker-compose -f docker-compose.test.yaml -p $(app_dir)_$(APP_ENV)
 endif
 
 dr		:= $(dc) run --rm
@@ -81,11 +83,11 @@ doctrine-database-drop:
 doctrine-fixtures-load:
 	$(sy) doctrine:fixtures:load --no-interaction
 
-public/assets: yarn.lock
+public/assets:
 	$(node) yarn
 	$(node) yarn run build
 
-public/assets-dev: yarn.lock
+public/assets-dev:
 	$(node) yarn
 	$(node) yarn run dev
 
