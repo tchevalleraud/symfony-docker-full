@@ -1,21 +1,21 @@
 name: Deploy on development server
 on:
   push:
-    branches: [develop]
+    branches: [master]
 jobs:
   init:
-    runs-on: [development]
+    runs-on: [production]
     steps:
       - name: Check directory exist
         id: check-directory
         continue-on-error: true
         run: |
-          cd ./dev/
+          cd ./prod/
           echo ::set-output name=exist::true
       - name: Update exist project
         if: steps.check-directory.outputs.exist == 'true'
         run: |
-          cd ./dev/
+          cd ./prod/
           git checkout master
           git add .
           git reset --hard
@@ -33,10 +33,10 @@ jobs:
           cd ./dev/
           rm .env
           touch .env
-          echo "APP_ENV=dev" >> .env
+          echo "APP_ENV=prod" >> .env
           echo "APP_SECRET=${{ secrets.APP_SECRET }}" >> .env
   build:
-    runs-on: [development]
+    runs-on: [production]
     needs: [init]
     steps:
       - name: Build docker image
@@ -53,7 +53,7 @@ jobs:
           cd ./dev/
           make swagger
   deploy:
-    runs-on: [development]
+    runs-on: [production]
     needs: [build]
     steps:
       - name: Start docker environment
