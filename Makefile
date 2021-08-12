@@ -11,7 +11,7 @@ ifeq ($(APP_ENV), prod)
 else ifeq ($(APP_ENV), dev)
 	dc := USER_ID=$(user) GROUP_ID=$(group) docker-compose -f docker-compose.dev.yaml -p $(app_dir)_$(APP_ENV)
 else ifeq ($(APP_ENV), test)
-	dc := USER_ID=$(user) GROUP_ID=$(group) docker-compose -f docker-compose.dev.yaml -p $(app_dir)_$(APP_ENV)
+	dc := USER_ID=$(user) GROUP_ID=$(group) docker-compose -f docker-compose.test.yaml -p $(app_dir)_$(APP_ENV)
 endif
 
 dr		:= $(dc) run --rm
