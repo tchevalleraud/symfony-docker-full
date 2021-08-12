@@ -16,7 +16,7 @@ jobs:
           cd ./tests/
           rm .env
           touch .env
-          echo "APP_ENV=test" >> .env
+          echo "APP_ENV=dev" >> .env
           echo "APP_SECRET=${{ secrets.APP_SECRET }}" >> .env
   build:
     runs-on: [development]
