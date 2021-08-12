@@ -37,7 +37,7 @@
                 new UserBadge($email),
                 new PasswordCredentials($request->request->get('password', '')),
                 [
-                    new CsrfTokenBadge('authenticate', $request->get('_csrf_token')),
+                    //new CsrfTokenBadge('authenticate', $request->get('_csrf_token')),
                 ]
             );
         }
