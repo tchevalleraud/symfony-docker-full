@@ -35,7 +35,10 @@ security:
             provider: system_user_token_provider
 
         main:
-            custom_authenticator: App\Application\Security\AppAuthenticator
+            guard:
+                authenticators:
+                    - App\Application\Security\DefaultAuthenticator
+            #custom_authenticator: App\Application\Security\AppAuthenticator
             logout:
                 path: app.security.logout
             provider: system_user_email_provider
