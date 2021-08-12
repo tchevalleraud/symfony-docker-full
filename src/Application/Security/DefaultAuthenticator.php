@@ -49,10 +49,10 @@
         }
 
         public function getUser($credentials, UserProviderInterface $userProvider){
-            dump($credentials);
             $token = new CsrfToken('authenticate', $credentials['csrf_token']);
-            dump($token);
-            dd($this->csrfTokenManager->isTokenValid($token));
+            if($token != $credentials['csrf_token']){
+                throw new InvalidCsrfTokenException();
+            }
             /**
             $token = new CsrfToken('authenticate', $credentials['csrf_token']);
             dump($token);
